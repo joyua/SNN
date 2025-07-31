@@ -86,11 +86,15 @@ module neuron #(
         .o_mac_clear(mac_clear_w),
         .o_mac_accumulate(mac_accumulate_w),
         .i_mac_sum(mac_sum_w),
-        .o_neuron_body_start(pe_start_w),
-        .o_neuron_body_mac_sum(mac_sum_w),
-        .o_neuron_body_state_in(state_mem_rdata_w),
-        .i_neuron_body_state_out(pe_state_out_w),
-        .i_neuron_body_spike(pe_spike_w),
+    
+        // --- <<< 수정된 부분 시작 >>> ---
+        .o_pe_start(pe_start_w),
+        .o_pe_mac_sum(mac_sum_w),
+        .o_pe_state_in(state_mem_rdata_w),
+        .i_pe_state_out(pe_state_out_w),
+        .i_pe_spike(pe_spike_w),
+        // --- <<< 수정된 부분 끝 >>> ---
+    
         .o_spike_out_valid(o_spike_out_valid),
         .o_spike_out_addr(o_spike_out_addr),
         .o_snn_done(o_snn_done),
