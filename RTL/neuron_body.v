@@ -24,10 +24,10 @@ module neuron_body #(
 
     reg [1:0] state, next_state;
     reg [DATA_WIDTH-1:0] vmem;
-    reg [DATA_WIDTH-1:0] pre_spike_vmem; // spike ¿¸ ∏∑¿¸¿ß ∞™
+    reg [DATA_WIDTH-1:0] pre_spike_vmem; // spike Ï†Ñ ÎßâÏ†ÑÏúÑ Í∞í
     reg [DATA_WIDTH:0] tmp_sum;
 
-    // next_state ≥Ì∏Æ
+    // next_state ÎÖºÎ¶¨
     always @(*) begin
         next_state = state;
         case (state)
@@ -36,7 +36,7 @@ module neuron_body #(
                     next_state = S_SPIKE;
             end
             S_SPIKE: begin
-                // spike ¡˜¿¸ ∞™ ±‚¡ÿ ∫–±‚
+                // spike ÏßÅÏ†Ñ Í∞í Í∏∞Ï§Ä Î∂ÑÍ∏∞
                 if (pre_spike_vmem >= OVERSHOOT)
                     next_state = S_ABS_REF;
                 else
@@ -56,7 +56,7 @@ module neuron_body #(
         endcase
     end
 
-    // FSM π◊ ≥ª∫Œ µø¿€
+    // FSM Î∞è ÎÇ¥Î∂Ä ÎèôÏûë
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             state         <= S_IDLE;
@@ -70,8 +70,8 @@ module neuron_body #(
             case (state)
                 S_IDLE: begin
                     if (in_valid) begin
-                    // ¿‘∑¬¿Ã ¿÷¿ª ∂ß: ¥©ºˆøÕ ¥©¿˚¿ª «‘≤≤ √≥∏Æ
-                    // (æ¥ı«√∑ŒøÏ πÊ¡ˆ: vmem + in_mac_sum¿Ã LEAK_IDLE∫∏¥Ÿ ¿€¿∏∏È 0¿∏∑Œ √≥∏Æ)
+                    // ÏûÖÎ†•Ïù¥ ÏûàÏùÑ Îïå: ÎàÑÏàòÏôÄ ÎàÑÏ†ÅÏùÑ Ìï®Íªò Ï≤òÎ¶¨
+                    // (Ïñ∏ÎçîÌîåÎ°úÏö∞ Î∞©ÏßÄ: vmem + in_mac_sumÏù¥ LEAK_IDLEÎ≥¥Îã§ ÏûëÏúºÎ©¥ 0ÏúºÎ°ú Ï≤òÎ¶¨)
                     tmp_sum = vmem + in_mac_sum;
                     if (tmp_sum > LEAK_IDLE) begin
                         tmp_sum = tmp_sum - LEAK_IDLE;
@@ -88,25 +88,25 @@ module neuron_body #(
                     else
                         vmem <= 0;
                  end
-                    // spike ¡∂∞«ø°º≠∏∏ pre_spike_mem ¿˙¿Â
-                    if ((vmem < THRESH) && (vmem + in_mac_sum >= THRESH))
+                    // spike Ï°∞Í±¥ÏóêÏÑúÎßå pre_spike_mem Ï†ÄÏû•
+                    if ((vmem < THRESH) && (vmem + in_mac_sum >= THRESH) && in_valid)
                         pre_spike_vmem <= vmem + in_mac_sum;
                 end
                 S_SPIKE: begin
                     out_spike <= 1'b1;
-                    // mem¿ª ∫Ø»≠Ω√≈∞¡ˆ æ ¿Ω! (overshoot ∞™ ¿Ø¡ˆ)
+                    // memÏùÑ Î≥ÄÌôîÏãúÌÇ§ÏßÄ ÏïäÏùå! (overshoot Í∞í Ïú†ÏßÄ)
                 end
                 S_REL_REF: begin
-                    // leak ¿˚øÎ (¿‘∑¬/¥©¿˚ «„øÎ Ω√ ø©±‚º≠ √≥∏Æ)
+                    // leak Ï†ÅÏö© (ÏûÖÎ†•/ÎàÑÏ†Å ÌóàÏö© Ïãú Ïó¨Í∏∞ÏÑú Ï≤òÎ¶¨)
                     if (vmem > LEAK_REF)
                         vmem <= vmem - LEAK_REF;
                     else
                         vmem <= 0;
-                    // ¿‘∑¬ ¥©¿˚ «„øÎ Ω√, ø©±‚ø° √ﬂ∞°
+                    // ÏûÖÎ†• ÎàÑÏ†Å ÌóàÏö© Ïãú, Ïó¨Í∏∞Ïóê Ï∂îÍ∞Ä
                     // if (in_valid) mem <= mem + in_mac_sum;
                 end
                 S_ABS_REF: begin
-                    // leak∏∏ ¿˚øÎ
+                    // leakÎßå Ï†ÅÏö©
                     if (vmem > LEAK_REF)
                         vmem <= vmem - LEAK_REF;
                     else
