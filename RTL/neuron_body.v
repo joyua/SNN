@@ -84,6 +84,11 @@ module neuron_body #(
                         else
                             vmem <= 0;
                     end
+                    // 2. 스파이크 발생 조건을 만족하면 vmem을 MAX_VAL로 덮어쓰기
+                    //    (이 로직은 1번 로직 다음에 위치하여 vmem 값을 최종 결정합니다)
+                    if ((vmem_prev < THRESH) && (vmem >= THRESH)) begin
+                        vmem <= MAX_VAL;
+                    end
                 end
                 
                 S_SPIKE: begin
@@ -115,6 +120,10 @@ module neuron_body #(
                             vmem <= vmem - LEAK_REF;
                         else
                             vmem <= 0;
+                    end
+                    // 2. 재발화 조건을 만족하면 vmem을 MAX_VAL로 덮어쓰기
+                    if ((vmem_prev < THRESH_HIGH) && (vmem >= THRESH_HIGH)) begin
+                        vmem <= MAX_VAL;
                     end
                 end
                 default: begin
